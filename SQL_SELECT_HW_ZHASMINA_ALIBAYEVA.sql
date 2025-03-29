@@ -4,7 +4,7 @@ SELECT title
 FROM film
 WHERE release_year BETWEEN 2017 AND 2019
   AND rating IS NOT NULL
-  AND length > 1
+  AND rental_rate > 1
   AND film_id IN (
       SELECT film_id
       FROM film_category fc
@@ -34,7 +34,7 @@ FROM actor a
 JOIN film_actor fa ON a.actor_id = fa.actor_id
 JOIN film f ON fa.film_id = f.film_id
 WHERE f.release_year > 2015
-GROUP BY a.first_name, a.last_name
+GROUP BY a.actor_id
 ORDER BY number_of_movies DESC
 LIMIT 5;
 -- Part 1 - Task 4
