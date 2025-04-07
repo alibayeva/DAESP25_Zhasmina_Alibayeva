@@ -121,3 +121,63 @@ CREATE TABLE IF NOT EXISTS social_media1.user_relationship (
     record_ts DATE DEFAULT CURRENT_DATE NOT NULL,
     UNIQUE (user1_id, user2_id)
 );
+-- data inserting:
+INSERT INTO social_media1.user (username, password, name, surname, age, email, gender, city, country) 
+VALUES 
+('zhasmina_alibayeva', '123456', 'Zhasmina', 'Alibayeva', 23, 'zhasmina.alibayeva@gmail.com.com', 'Female', 'Almaty', 'Kazakhstan'),
+('asel_ali', '789123', 'Asel', 'Ali', 30, 'asel.ali@gmail.com', 'Female', 'Astana', 'Kazakhstan');
+
+INSERT INTO social_media1.post (user_id, post_content) 
+VALUES 
+(1, 'Roses are red'),
+(2, 'Violets are blue');
+
+INSERT INTO social_media1.reaction (post_id, user_id, reaction_type) 
+VALUES 
+(1, 2, 'like'),
+(2, 1, 'dislike');
+
+INSERT INTO social_media1.friendship (user1_id, user2_id) 
+VALUES 
+(1, 2),
+(2, 1);
+
+INSERT INTO social_media1.comment (post_id, user_id, comment_text) 
+VALUES 
+(1, 2, 'Keremet!'),
+(2, 1, 'Wow');
+
+INSERT INTO social_media1.media (post_id, media_url, media_type) 
+VALUES 
+(1, 'https://pinterest.com/image1.jpg', 'image'),
+(2, 'https://pinterest.com/video1.mp4', 'video');
+
+INSERT INTO social_media1.hashtag (hashtag_name) 
+VALUES 
+('tbt'), 
+('lol');
+
+INSERT INTO social_media1.group (group_name, created_by) 
+VALUES 
+('Data Analytics Engineering', 1), 
+('Shodim Almaty', 2);
+
+INSERT INTO social_media1.group_member (group_id, user_id, role) 
+VALUES 
+(1, 1, 'admin'), 
+(2, 2, 'admin');
+
+INSERT INTO social_media1.saved_post (user_id, post_id) 
+VALUES 
+(1, 2), 
+(2, 1);
+
+INSERT INTO social_media1.user_report (reported_by, reported_post, report_reason) 
+VALUES 
+(1, 2, 'Inappropriate content'), 
+(2, 1, 'Spam');
+
+INSERT INTO social_media1.user_relationship (user1_id, user2_id, relationship_type) 
+VALUES 
+(1, 2, 'friend'), 
+(2, 1, 'friend');
