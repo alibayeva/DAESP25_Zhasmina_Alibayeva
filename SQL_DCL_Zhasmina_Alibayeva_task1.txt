@@ -1,0 +1,9 @@
+Role-based access control: Managing permissions through roles and users (GRANT, REVOKE).
+
+Password authentication: User identity verification using passwords.
+
+Row-level security (RLS): Restricting access to rows based on policies.
+
+Privileges management: Controlling access to objects (SELECT, INSERT, UPDATE, DELETE).
+
+Role hierarchy: Using groups of roles to separate access levels.
