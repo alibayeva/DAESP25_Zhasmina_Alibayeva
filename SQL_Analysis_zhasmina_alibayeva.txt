@@ -1,0 +1,121 @@
+Task 2
+SELECT 
+  p.prod_name AS product_name,
+  ROUND(SUM(CASE WHEN t.calendar_month_number IN (1, 2, 3) THEN s.amount_sold ELSE 0 END), 2) AS q1,
+  ROUND(SUM(CASE WHEN t.calendar_month_number IN (4, 5, 6) THEN s.amount_sold ELSE 0 END), 2) AS q2,
+  ROUND(SUM(CASE WHEN t.calendar_month_number IN (7, 8, 9) THEN s.amount_sold ELSE 0 END), 2) AS q3,
+  ROUND(SUM(CASE WHEN t.calendar_month_number IN (10, 11, 12) THEN s.amount_sold ELSE 0 END), 2) AS q4,
+  ROUND(SUM(s.amount_sold), 2) AS year_sum
+FROM sh.sales s
+JOIN sh.products p ON s.prod_id = p.prod_id
+JOIN sh.customers c ON s.cust_id = c.cust_id
+JOIN sh.times t ON s.time_id = t.time_id
+JOIN sh.countries co ON c.country_id = co.country_id
+WHERE 
+  p.prod_category = 'Photo'
+  AND t.calendar_year = 2000
+GROUP BY p.prod_name
+ORDER BY year_sum DESC;
+
+Task 1
+WITH joined_data AS (
+    SELECT 
+        ch.channel_desc,
+        cu.cust_last_name,
+        cu.cust_first_name,
+        sa.amount_sold
+    FROM sh.sales sa
+    JOIN sh.customers cu ON sa.cust_id = cu.cust_id
+    JOIN sh.channels ch ON sa.channel_id = ch.channel_id
+),
+channel_totals AS (
+    SELECT 
+        channel_desc,
+        SUM(amount_sold) AS total_sales
+    FROM joined_data
+    GROUP BY channel_desc
+),
+top_customers AS (
+    SELECT 
+        a.channel_desc,
+        a.cust_last_name,
+        a.cust_first_name,
+        a.amount_sold
+    FROM joined_data a
+    WHERE (
+        SELECT COUNT(*)
+        FROM joined_data b
+        WHERE b.channel_desc = a.channel_desc
+          AND b.amount_sold > a.amount_sold
+    ) < 5
+)
+SELECT 
+    t.channel_desc,
+    t.cust_last_name,
+    t.cust_first_name,
+    TO_CHAR(t.amount_sold, 'FM999999999.00') AS amount_sold,
+    TO_CHAR((t.amount_sold / ct.total_sales) * 100, 'FM999990.0000') || ' %' AS sales_percentage
+FROM top_customers t
+JOIN channel_totals ct ON t.channel_desc = ct.channel_desc
+ORDER BY t.channel_desc, t.amount_sold DESC;
+
+Task 3
+SELECT 
+  f.channel_desc,
+  f.cust_id,
+  f.cust_last_name,
+  f.cust_first_name,
+  TO_CHAR(f.amount_sold, 'FM999999999.00') AS amount_sold
+FROM (
+  SELECT 
+    ch.channel_desc,
+    cu.cust_id,
+    cu.cust_last_name,
+    cu.cust_first_name,
+    SUM(s.amount_sold) AS amount_sold
+  FROM sh.sales s
+  JOIN sh.customers cu ON s.cust_id = cu.cust_id
+  JOIN sh.channels ch ON s.channel_id = ch.channel_id
+  JOIN sh.times t ON s.time_id = t.time_id
+  WHERE t.calendar_year IN (1998, 1999, 2001)
+  GROUP BY ch.channel_desc, cu.cust_id, cu.cust_last_name, cu.cust_first_name
+) f
+WHERE (
+  SELECT COUNT(*) 
+  FROM (
+    SELECT 
+      ch2.channel_desc,
+      cu2.cust_id,
+      SUM(s2.amount_sold) AS total_sales
+    FROM sh.sales s2
+    JOIN sh.customers cu2 ON s2.cust_id = cu2.cust_id
+    JOIN sh.channels ch2 ON s2.channel_id = ch2.channel_id
+    JOIN sh.times t2 ON s2.time_id = t2.time_id
+    WHERE t2.calendar_year IN (1998, 1999, 2001)
+    GROUP BY ch2.channel_desc, cu2.cust_id
+    HAVING ch2.channel_desc = f.channel_desc AND cu2.cust_id <> f.cust_id
+      AND SUM(s2.amount_sold) > f.amount_sold
+  ) sub
+) < 300
+ORDER BY f.channel_desc, f.amount_sold DESC;
+
+Task 4
+SELECT 
+  t.calendar_month_desc,
+  p.prod_category,
+  ROUND(SUM(CASE WHEN co.country_region = 'Americas' THEN s.amount_sold ELSE 0 END), 0) AS "Americas SALES",
+  ROUND(SUM(CASE WHEN co.country_region = 'Europe' THEN s.amount_sold ELSE 0 END), 0) AS "Europe SALES"
+FROM sh.sales s
+JOIN sh.products p ON s.prod_id = p.prod_id
+JOIN sh.customers c ON s.cust_id = c.cust_id
+JOIN sh.countries co ON c.country_id = co.country_id
+JOIN sh.times t ON s.time_id = t.time_id
+WHERE 
+  t.calendar_month_desc IN ('2000-01', '2000-02', '2000-03') 
+  AND co.country_region IN ('Europe', 'Americas')
+GROUP BY 
+  t.calendar_month_desc, 
+  p.prod_category
+ORDER BY 
+  t.calendar_month_desc,
+  p.prod_category;
